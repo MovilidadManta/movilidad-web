@@ -1,8 +1,29 @@
+
+const selectTipoArchivo = document.getElementById("tipo_literal_lotaip");
+const containerArchivo = document.getElementById("container_archivo");
+const containerLink = document.getElementById("container_link");
+
 $(document).ready(function () {
     $(".dropify").dropify();
     get_literal_lotaips();
     get_literale_lotaip_select();
     //et_lotaips()
+});
+
+selectTipoArchivo.addEventListener("change", e => {
+    containerArchivo.style.display = "none";
+    containerLink.style.display = "none";
+
+    switch (parseInt(e.target.value)) {
+        case 0:
+            containerArchivo.style.display = "block";
+            break;
+        case 1:
+            containerLink.style.display = "block";
+            break;
+        default:
+            break;
+    }
 });
 
 /*INICIO DE FUNCION PARA LISTAR LOS LITERALES DE LOTAIP EN EL SELECT*/
@@ -60,14 +81,21 @@ $("#btn-añadir-literal-lotaip").click(function () {
             position: "right",
             autohide: false,
         });
-    } /*else if($('#txt-ruta-archivo').val() == ''){
+    } else if ($("#tipo_literal_lotaip").val() == "1" && $("#txt_link_archivo").val() == "") {
+        notif({
+            type: "warning",
+            msg: "<b>Aviso: </b>Link no puede ser vacío",
+            position: "right",
+            autohide: false,
+        });
+    } else if ($("#tipo_literal_lotaip").val() == "0" && $('#txt-ruta-archivo').val() == '') {
         notif({
             type: "warning",
             msg: "<b>Aviso: </b>Seleccione Archivo",
             position: "right",
             autohide: false
         });
-    } */ else {
+    } else {
         $("#btn-añadir-literal-lotaip").html(
             "<span class='color-btn-nuevo spinner-border spinner-border-sm margin-spiner' role='status' aria-hidden='true'></span><span class='color-btn-nuevo'> Guardando..</span>"
         );
@@ -100,6 +128,8 @@ function update_literal_lotaip() {
                     msg: "<b>Correcto:</b> Literal Lotaip registrado",
                     type: "success",
                 });
+                $("#ip_id_lotaip_datelle").val("");
+                $("#txt-id-literal-lotaip").val("");
                 $("#select-literal-lotaip").val("0");
                 $("#select-mes").val("0");
                 var drEvent2 = $("#txt-ruta-archivo").dropify();
@@ -298,9 +328,12 @@ function get_literal_lotaips() {
                             '	                    <strong class="color-btn-nuevo"></strong>';
                         ht += "	                </a>";
                         ht += "				</td>";
-                    } else {
-                        ht += '				<td align="center" class="color-td">';
-                        ht += "				</td>";
+                    } else if (data.ldl_extension_archivo == "link") {
+                        ht += `<td align="center" class="color-td">
+                                <a href="${data.ldl_ruta_archivo}" target="_blank" class="btn pad-nu">
+                                    <i class="fa fa-internet-explorer color-icono-excell"></i>
+                                </a>
+                               </td>`;
                     }
 
                     ht += '				<td class="color-td" align="center">';
@@ -360,16 +393,24 @@ function get_literales_lotaip_id(id_literal) {
                     console.log(response.data);
                     $("#select-literal-lotaip").val(data.ldl_id_literal_lotaip);
                     $("#select-mes").val(data.ldl_mes);
-                    var drEvent = $("#txt-ruta-archivo").dropify({
-                        defaultFile: "/archivos_lotaip/" + data.emp_ruta_foto,
-                    });
-                    drEvent = drEvent.data("dropify");
-                    drEvent.resetPreview();
-                    drEvent.clearElement();
-                    drEvent.settings.defaultFile =
-                        "/imagenes_empleados/" + data.ldl_ruta_archivo;
-                    drEvent.destroy();
-                    drEvent.init();
+
+                    selectTipoArchivo.value = 0;
+                    if (data.ldl_extension_archivo == "link") {
+                        selectTipoArchivo.value = 1;
+                        $("#txt_link_archivo").val(data.ldl_ruta_archivo);
+                    } else {
+                        var drEvent = $("#txt-ruta-archivo").dropify({
+                            defaultFile: "/archivos_lotaip/" + data.emp_ruta_foto,
+                        });
+                        drEvent = drEvent.data("dropify");
+                        drEvent.resetPreview();
+                        drEvent.clearElement();
+                        drEvent.settings.defaultFile =
+                            "/imagenes_empleados/" + data.ldl_ruta_archivo;
+                        drEvent.destroy();
+                        drEvent.init();
+                    }
+                    selectTipoArchivo.dispatchEvent(new Event('change'));
                 });
             }
             $("#global-loader").addClass("none");
@@ -393,6 +434,7 @@ function get_literales_lotaip_id(id_literal) {
 /**FIN DE FUNCION PARA CONSULTAR LOS DATOS DEL INDICADOR  PARA MODIFICAR */
 
 $("#btn-nuevo-literal-lotaip").click(function () {
+    $("#ip_id_lotaip_datelle").val("");
     $("#txt-id-literal-lotaip").val("");
     $("#select-literal-lotaip").val("0");
     $("#select-mes").val("0");

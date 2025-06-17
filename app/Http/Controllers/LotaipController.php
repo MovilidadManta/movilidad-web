@@ -241,32 +241,41 @@ class LotaipController extends Controller
         $date = Carbon::now();
         $date = $date->format('Ymd') . $date->format('His');
         $archivo = $request->file('txt-ruta-archivo');
-        if ($archivo != "") {
+        $tipo = $request-> input('tipo_literal_lotaip');
+        $link = $request->input('txt_link_archivo');
+
+        $extension = "";
+        $nombrearchivo = "";
+
+        if ($tipo == "0"){
             $extension = $archivo->getClientOriginalExtension();
             $nombrearchivo = $request->input('txt-id-lotaip') . '_' . $request->input('select-mes') . '_' . $date . $archivo->getClientOriginalName() . '.' . $archivo->getClientOriginalExtension();
             $nuevaruta = public_path('/archivos_lotaip/' . $nombrearchivo);
-            if (copy($archivo->getRealPath(), $nuevaruta)) {
-                $json[] = [
-                    //ID DEL LITERAL LOTAID DETALLE INGRESADO
-                    'id_lotaip_detalle' => $request->input('ip_id_lotaip_datelle'),
-                    'id_lotaip' => $request->input('txt-id-lotaip'),
-                    'id_literal_lotaip' => $request->input('txt-id-literal-lotaip'),
-                    'mes' => $request->input('select-mes'),
-                    'ruta_archivo' => $nombrearchivo,
-                    'id_select_literal_lotaip' => $request->input('select-literal-lotaip'),
-                    'extension_archivo' => $extension
-                ];
-                $jsoninsert = json_encode($json);
-                $sql = DB::connection('pgsql_pag_web')->Select('select public.procedimiento_modificar_datos_lotaips_detalles(?,?,?)', [$jsoninsert, $ip, $user]);
-                foreach ($sql as $s) {
-                    $id = $s->procedimiento_modificar_datos_lotaips_detalles;
-                }
-                if ($sql != "[]") {
-                    return response()->json(['respuesta' => "true", "data" => $id, "sql" => $sql]);
-                } else {
-                    return response()->json(["respuesta" => "false"]);
-                }
-            }
+            copy($archivo->getRealPath(), $nuevaruta);
+        }
+
+        if ($tipo == "1"){
+            $extension = "link";
+            $nombrearchivo = $link;
+        }
+    
+        $json[] = [
+            //ID DEL LITERAL LOTAID DETALLE INGRESADO
+            'id_lotaip_detalle' => $request->input('ip_id_lotaip_datelle'),
+            'id_lotaip' => $request->input('txt-id-lotaip'),
+            'id_literal_lotaip' => $request->input('txt-id-literal-lotaip'),
+            'mes' => $request->input('select-mes'),
+            'ruta_archivo' => $nombrearchivo,
+            'id_select_literal_lotaip' => $request->input('select-literal-lotaip'),
+            'extension_archivo' => $extension
+        ];
+        $jsoninsert = json_encode($json);
+        $sql = DB::connection('pgsql_pag_web')->Select('select public.procedimiento_modificar_datos_lotaips_detalles(?,?,?)', [$jsoninsert, $ip, $user]);
+        foreach ($sql as $s) {
+            $id = $s->procedimiento_modificar_datos_lotaips_detalles;
+        }
+        if ($sql != "[]") {
+            return response()->json(['respuesta' => "true", "data" => $id, "sql" => $sql]);
         } else {
             return response()->json(["respuesta" => "false"]);
         }
@@ -279,32 +288,44 @@ class LotaipController extends Controller
         $date = Carbon::now();
         $date = $date->format('Ymd') . $date->format('His');
         $archivo = $request->file('txt-ruta-archivo');
-        if ($archivo != "") {
+        $tipo = $request-> input('tipo_literal_lotaip');
+        $link = $request->input('txt_link_archivo');
+
+        $extension = "";
+        $nombrearchivo = "";
+
+        if ($tipo == "0"){
             $extension = $archivo->getClientOriginalExtension();
-            //            $nombrearchivo = $archivo->getClientOriginalName() . '.' . $archivo->getClientOriginalExtension();
             $nombrearchivo = $request->input('txt-id-lotaip') . '_' . $request->input('select-mes') . '_' . $date . $archivo->getClientOriginalName() . '.' . $archivo->getClientOriginalExtension();
             $nuevaruta = public_path('/archivos_lotaip/' . $nombrearchivo);
-            if (copy($archivo->getRealPath(), $nuevaruta)) {
-                $json[] = [
-                    'id_lotaip' => $request->input('txt-id-lotaip'),
-                    'id_literal_lotaip' => $request->input('txt-id-literal-lotaip'),
-                    'mes' => $request->input('select-mes'),
-                    'ruta_archivo' => $nombrearchivo,
-                    'id_select_literal_lotaip' => $request->input('select-literal-lotaip'),
-                    'extension_archivo' => $extension
-                ];
-                $jsoninsert = json_encode($json);
-                $sql = DB::connection('pgsql_pag_web')->Select('select public.procedimiento_registrar_datos_lotaips_detalles(?,?,?)', [$jsoninsert, $ip, $user]);
-                foreach ($sql as $s) {
-                    $id = $s->procedimiento_registrar_datos_lotaips_detalles;
-                }
-                if ($sql != "[]") {
-                    return response()->json(['respuesta' => "true", "data" => $id, "sql" => $sql]);
-                } else {
-                    return response()->json(["respuesta" => "false"]);
-                }
-            }
+            copy($archivo->getRealPath(), $nuevaruta);
+        }
+
+        if ($tipo == "1"){
+            $extension = "link";
+            $nombrearchivo = $link;
+        }
+
+        $json[] = [
+            'id_lotaip' => $request->input('txt-id-lotaip'),
+            'id_literal_lotaip' => $request->input('txt-id-literal-lotaip'),
+            'mes' => $request->input('select-mes'),
+            'ruta_archivo' => $nombrearchivo,
+            'id_select_literal_lotaip' => $request->input('select-literal-lotaip'),
+            'extension_archivo' => $extension
+        ];
+        $jsoninsert = json_encode($json);
+        $sql = DB::connection('pgsql_pag_web')->Select('select public.procedimiento_registrar_datos_lotaips_detalles(?,?,?)', [$jsoninsert, $ip, $user]);
+        foreach ($sql as $s) {
+            $id = $s->procedimiento_registrar_datos_lotaips_detalles;
+        }
+        if ($sql != "[]") {
+            return response()->json(['respuesta' => "true", "data" => $id, "sql" => $sql]);
         } else {
+            return response()->json(["respuesta" => "false"]);
+        }
+        
+        /*else {
             $json[] = [
                 'id_lotaip' => $request->input('txt-id-lotaip'),
                 'id_literal_lotaip' => $request->input('txt-id-literal-lotaip'),
@@ -322,7 +343,7 @@ class LotaipController extends Controller
             } else {
                 return response()->json(["respuesta" => "false"]);
             }
-        }
+        }*/
     }
 
     public function get_literales_id_lotaips($id)

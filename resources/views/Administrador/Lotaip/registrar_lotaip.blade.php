@@ -47,6 +47,15 @@
                                         <input type="hidden" name="ip_id_lotaip_datelle" id="ip_id_lotaip_datelle">
                                         <div class="row row-sm card-body">
                                             <div class="col-lg">
+                                                <strong>Tipo</strong>
+                                                <select name="tipo_literal_lotaip" id="tipo_literal_lotaip" class="form-control form-select select2">
+                                                    <option value="0">ARCHIVO</option>
+                                                    <option value="1">LINK</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row row-sm card-body">
+                                            <div class="col-lg">
                                                 <strong>Literal</strong>
                                                 <select name="select-literal-lotaip" id="select-literal-lotaip" class="form-control form-select select2">
                                                     <option value="0">SELECCIONE LITERAL</option>
@@ -72,9 +81,13 @@
                                                     <option value="12">DICIEMBRE</option>
                                                 </select>
                                             </div>
-                                            <div class="col-lg mg-t-10 mg-lg-t-0">
+                                            <div class="col-lg mg-t-10 mg-lg-t-0" id="container_archivo">
                                                 <strong>Archivo</strong>
-                                                <input class="dropify" type="file" name="txt-ruta-archivo" id="txt-ruta-archivo" data-max-file-size="3M">
+                                                <input class="dropify" type="file" name="txt-ruta-archivo" id="txt-ruta-archivo" accept=".pdf, .xls, .xlsx" data-max-file-size="3M">
+                                            </div>
+                                            <div class="col-lg mg-t-10 mg-lg-t-0" id="container_link" style="display: none">
+                                                <strong>Link</strong>
+                                                <input class="form-control" type="text" name="txt_link_archivo" id="txt_link_archivo">
                                             </div>
                                             <div class="col-lg mg-t-10 mg-lg-t-0 marg-a">
                                                 <a class="btn background-btn-nuevo pad-nu " id="btn-añadir-literal-lotaip">
