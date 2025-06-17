@@ -1,8 +1,18 @@
 /node_modules
 /public/**/*.*
-!/public/**/*.js
 !/public/Imagenes/*.*
 !/public/Imagenes/utilitarios/*.*
+!/public/lib/*.*
+!/public/avril_assets/*.*
+!/public/css/*.*
+!/public/css pagina web movilidad/*.*
+!/public/directorio/*.*
+!/public/dropify/*.*
+!/public/fonts/*.*
+!/public/js/*.*
+!/public/logo/*.*
+!/public/TTM/*.*
+!/public/videos/*.*
 /storage/*.key
 /vendor
 .env
