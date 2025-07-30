@@ -1220,7 +1220,11 @@ class MedicoController extends Controller
                     ' ', 
                     fm_hora_fin_certificado
                 )::timestamp - CONCAT(TO_CHAR(fm_fecha_inicio_certificado, 'YYYY-MM-DD'), ' ', fm_hora_inicio_certificado)::timestamp)) / 86400), 0) as horas, emp_cedula, CONCAT(emp_apellido, ' ', emp_nombre) as empleado";
-            $where .= " AND fm_tipo_certificado IN (1,2)";
+
+             if($tipo_certificado == ""){
+                $where .= " AND fm_tipo_certificado IN (1,2)";
+             }
+
             $groupBy = "emp_cedula, concat(emp_apellido, ' ', emp_nombre)";
             $orderBy = "horas desc";
         }
@@ -1547,7 +1551,9 @@ class MedicoController extends Controller
                     ' ', 
                     fm_hora_fin_certificado
                 )::timestamp - CONCAT(TO_CHAR(fm_fecha_inicio_certificado, 'YYYY-MM-DD'), ' ', fm_hora_inicio_certificado)::timestamp)) / 86400), 0) as horas, emp_cedula, CONCAT(emp_apellido, ' ', emp_nombre) as empleado";
-            $where .= " AND fm_tipo_certificado IN (1,2)";
+            if($tipo_certificado == ""){
+                $where .= " AND fm_tipo_certificado IN (1,2)";
+             }
             $groupBy = "emp_cedula, concat(emp_apellido, ' ', emp_nombre)";
             $orderBy = "horas desc";
         }

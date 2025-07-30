@@ -373,7 +373,9 @@ class GaritaController extends Controller
     {
         $cl = new HomeController();
         $menus_ = $cl->GET_menus_asign();
-        return view('Administrador.Garita.Ingreso_vehiculo_patio.index', compact('menus_'));
+        $tipo_ingreso = collect(DB::Select("SELECT tiv_id, tiv_nombre, tiv_observacion, ruta_imagen FROM garita.tbl_conf_tipo_ingreso_vehicular WHERE tiv_estado = TRUE"));
+        DB::disconnect();
+        return view('Administrador.Garita.Ingreso_vehiculo_patio.index', compact('menus_', 'tipo_ingreso'));
     }
 
     public function get_IngresoVehiculoPatio()
@@ -403,7 +405,7 @@ class GaritaController extends Controller
                                     FROM garita.tbl_documentos_ingreso_vehicular AS uiv
                                     INNER JOIN garita.tbl_documentos_requeridos AS d ON uiv.d_id = d.d_id
                                     WHERE d.d_estado = TRUE
-                                    AND tiv_id = 3");
+                                    AND tiv_id = $tiv_id");
         DB::disconnect();
         return $DocumentosVehiculos;
     }
@@ -414,26 +416,9 @@ class GaritaController extends Controller
         $ip = request()->ip();
         $user = session::get('id_users');
 
-
-
-        //----------- No pasa
-        /*
-        $data = json_decode($request->input('detalle_inventario_vehiculo'), true);
-
-        // Responder con los datos recibidos (para verificar)
-        header('Content-Type: application/json');
-        return response()->json([
-            'mensaje' => 'Datos recibidos correctamente',
-            'datos' => $data
-        ]);
-        */
-        //-------
-
-        return $this->storeDocumentsVehiculoPatio_documentos($request->documentos, 1);
-
         $json[] = [
-            'tiv_id' => '1', //Por ahora 1 que es ordenanza
-            'ivp_descripcion' => '', //Por ahora vacio
+            'tiv_id' => $request->input('tiv_id'), //Por ahora 1 que es ordenanza
+            'ivp_descripcion' => strtoupper($request->input('ivp_descripcion')), //Por ahora vacio
             'ivp_articulo' => strtoupper($request->input('ivp_articulo')),
             'ivp_numeral' => strtoupper($request->input('ivp_numeral')),
             'ivp_literal' => strtoupper($request->input('ivp_literal')),
@@ -459,16 +444,16 @@ class GaritaController extends Controller
             'ivp_medio_ingreso_empresa' => strtoupper($request->input('ivp_medio_ingreso_empresa')),
             'ivp_medio_ingreso_datos_translado' => strtoupper($request->input('ivp_medio_ingreso_datos_translado')),
 
-            'ivp_agente_retiene_cedula' => '', //Vacio por ahora
-            'ivp_agente_retiene_nombre' => '', //Vacio por ahora
-            'ivp_agente_retiene_email' => '', //Vacio por ahora
+            'ivp_agente_retiene_cedula' => $request->input('ivp_agente_retiene_cedula'), //Vacio por ahora
+            'ivp_agente_retiene_nombre' => strtoupper($request->input('ivp_agente_retiene_nombre')), //Vacio por ahora
+            'ivp_agente_retiene_email' => strtoupper($request->input('ivp_agente_retiene_email')), //Vacio por ahora
 
-            'ivp_agente_ingresa_cedula' => '', //Vacio por ahora
-            'ivp_agente_ingresa_nombre' => '', //Vacio por ahora
+            'ivp_agente_ingresa_cedula' => $request->input('ivp_agente_ingresa_cedula'), //Vacio por ahora
+            'ivp_agente_ingresa_nombre' => strtoupper($request->input('ivp_agente_ingresa_nombre')), //Vacio por ahora
 
-            'ivp_responsable_cedula' => '', //Vacio por ahora
-            'ivp_responsable_nombre' => '', //Vacio por ahora
-            'ivp_responsable_email' => '', //Vacio por ahora
+            'ivp_responsable_cedula' => $request->input('ivp_responsable_cedula'), //Vacio por ahora
+            'ivp_responsable_nombre' => strtoupper($request->input('ivp_responsable_nombre')), //Vacio por ahora
+            'ivp_responsable_email' => strtoupper($request->input('ivp_responsable_email')), //Vacio por ahora
 
             'ivp_agente_devuelve_cedula' => '', //Vacio por ahora
             'ivp_agente_devuelve_nombre' => '', //Vacio por ahora
@@ -479,11 +464,10 @@ class GaritaController extends Controller
             'ivp_control_ingreso' => 1, //Por ahora 1
 
             'detalle_inventario_vehiculos' => $request->input('detalle_inventario_vehiculo'), //Json vacio
-            'detalle_documentos' => $this->storeDocumentsVehiculoPatio_documentos($request->documentos, 1), //Json vacio
-            //'detalle_evidencias_vehiculos' => '[]', //Json vacio
+            'detalle_documentos' => $this->storeDocumentsVehiculoPatio_documentos($request->documentos, $request->input('tiv_id')), //Json vacio
+            'detalle_evidencias_vehiculos' => $this->storeEvidenciasVehiculoPatio($request->imagenes), //Json vacio
 
         ];
-
 
         $jsoninsert = json_encode($json);
         $sql = DB::Select('select garita.procedimiento_registrar_tbl_ingreso_vehiculo_patio(?,?,?)', [$jsoninsert, $ip, $user]);
@@ -498,8 +482,126 @@ class GaritaController extends Controller
         }
     }
 
+    public function updateIngresoVehiculoPatio(Request $request)
+    {
+        $date = Carbon::now();
+        $ip = request()->ip();
+        $user = session::get('id_users');
+        $ivp_id = $request->input('ivp_id');
+
+        $this->deleteFilesEvidencias_ingreso_vehiculo_patio($ivp_id);
+        $this->deleteFilesDocuments_ingreso_vehiculo_patio($ivp_id);
+
+        $json[] = [
+            'ivp_id' => $ivp_id, //Por ahora 1 que es ordenanza
+            'tiv_id' => $request->input('tiv_id'), //Por ahora 1 que es ordenanza
+            'ivp_descripcion' => strtoupper($request->input('ivp_descripcion')), //Por ahora vacio
+            'ivp_articulo' => strtoupper($request->input('ivp_articulo')),
+            'ivp_numeral' => strtoupper($request->input('ivp_numeral')),
+            'ivp_literal' => strtoupper($request->input('ivp_literal')),
+            'ivp_resolucion' => strtoupper($request->input('ivp_resolucion')),
+            'ivp_autoridad' => strtoupper($request->input('ivp_autoridad')),
+            'ivp_oficio' => strtoupper($request->input('ivp_oficio')),
+
+            'ivp_conductor_identificacion' => strtoupper($request->input('ivp_conductor_identificacion')),
+            'ivp_conductor_nombres' => strtoupper($request->input('ivp_conductor_nombres')),
+            'ivp_conductor_tipo_licencia' => $request->input('ivp_conductor_tipo_licencia'),
+
+            'ivp_vehiculo_placa' => strtoupper($request->input('ivp_vehiculo_placa')),
+            'ivp_vehiculo_tipo' => $request->input('ivp_vehiculo_tipo'),
+            'ivp_vehiculo_marca' => strtoupper($request->input('ivp_vehiculo_marca')),
+            'ivp_vehiculo_modelo' => strtoupper($request->input('ivp_vehiculo_modelo')),
+            'ivp_vehiculo_color1' => strtoupper($request->input('ivp_vehiculo_color1')),
+            'ivp_vehiculo_ramv' => strtoupper($request->input('ivp_vehiculo_ramv')),
+            'ivp_vehiculo_chasis' => strtoupper($request->input('ivp_vehiculo_chasis')),
+            'ivp_vehiculo_motor' => strtoupper($request->input('ivp_vehiculo_motor')),
+            'ivp_vehiculo_servicio' => $request->input('ivp_vehiculo_servicio'),
+
+            'ivp_medio_ingreso' => $request->input('ivp_medio_ingreso'),
+            'ivp_medio_ingreso_empresa' => strtoupper($request->input('ivp_medio_ingreso_empresa')),
+            'ivp_medio_ingreso_datos_translado' => strtoupper($request->input('ivp_medio_ingreso_datos_translado')),
+
+            'ivp_agente_retiene_cedula' => $request->input('ivp_agente_retiene_cedula'), //Vacio por ahora
+            'ivp_agente_retiene_nombre' => strtoupper($request->input('ivp_agente_retiene_nombre')), //Vacio por ahora
+            'ivp_agente_retiene_email' => strtoupper($request->input('ivp_agente_retiene_email')), //Vacio por ahora
+
+            'ivp_agente_ingresa_cedula' => $request->input('ivp_agente_ingresa_cedula'), //Vacio por ahora
+            'ivp_agente_ingresa_nombre' => strtoupper($request->input('ivp_agente_ingresa_nombre')), //Vacio por ahora
+
+            'ivp_responsable_cedula' => $request->input('ivp_responsable_cedula'), //Vacio por ahora
+            'ivp_responsable_nombre' => strtoupper($request->input('ivp_responsable_nombre')), //Vacio por ahora
+            'ivp_responsable_email' => strtoupper($request->input('ivp_responsable_email')), //Vacio por ahora
+
+            'ivp_agente_devuelve_cedula' => '', //Vacio por ahora
+            'ivp_agente_devuelve_nombre' => '', //Vacio por ahora
+
+            'ivp_responsable_retira_cedula' => '', //Vacio por ahora
+            'ivp_responsable_retira_nombre' => '', //Vacio por ahora
+
+            'ivp_control_ingreso' => 1, //Por ahora 1
+
+            'detalle_inventario_vehiculos' => $request->input('detalle_inventario_vehiculo'), //Json vacio
+            'detalle_documentos' => $this->storeDocumentsVehiculoPatio_documentos($request->documentos, $request->input('tiv_id')), //Json vacio
+            'detalle_evidencias_vehiculos' => $this->storeEvidenciasVehiculoPatio($request->imagenes), //Json vacio
+
+        ];
+
+        $jsoninsert = json_encode($json);
+
+        $sql = DB::Select('select garita.procedimiento_modificar_tbl_ingreso_vehiculo_patio(?,?,?)', [$jsoninsert, $ip, $user]);
+        DB::disconnect();
+        foreach ($sql as $s) {
+            $id = $s->procedimiento_modificar_tbl_ingreso_vehiculo_patio;
+        }
+        if ($sql != "[]") {
+            return response()->json(['respuesta' => "true", "data" => $id, "sql" => $sql]);
+        } else {
+            return response()->json(["respuesta" => "false"]);
+        }
+    }
+
+    public function deleteIngresoVehiculoPatio($id)
+    {
+        $date = Carbon::now();
+        $ip = request()->ip();
+        $user = session::get('id_users');
+
+        $json[] = [
+            'ivp_id' => $id,
+        ];
+
+        $jsoninsert = json_encode($json);
+        $sql = DB::Select('select garita.procedimiento_eliminar_tbl_ingreso_vehiculo_patio(?,?,?)', [$jsoninsert, $ip, $user]);
+        foreach ($sql as $s) {
+            $id = $s->procedimiento_eliminar_tbl_ingreso_vehiculo_patio;
+        }
+        if ($sql != "[]") {
+            return response()->json(['respuesta' => "true", "data" => $id, "sql" => $sql]);
+        } else {
+            return response()->json(["respuesta" => "false"]);
+        }
+    }
+
+    function deleteFilesDocuments_ingreso_vehiculo_patio($ivp_id) {
+        $documentos = DB::select(
+            "SELECT ivd_archivo_generado FROM garita.tbl_ingreso_vehiculo_patio_documentos WHERE ivp_id = ?", 
+            [$ivp_id]
+        );
+
+        foreach ($documentos as $doc) {
+            $path = '/ftpGarita/documentos_vehiculo/' . $doc->ivd_archivo_generado;
+            if (Storage::disk('ftp_movilidad')->exists($path)) {
+                Storage::disk('ftp_movilidad')->delete($path);
+            }
+        }
+    }
+
     function  storeDocumentsVehiculoPatio_documentos($documentos, $tiv_id){
         $jsonResultado = []; // Aquí guardaremos los datos para armar el JSON
+
+        if($documentos == null){
+            return $jsonResultado;
+        }
 
         foreach ($documentos as $doc) {
 
@@ -509,6 +611,11 @@ class GaritaController extends Controller
             $nuevaruta = public_path('/archivos_documentos_vehiculo/' . $nombrearchivo);
             copy($archivo->getRealPath(), $nuevaruta);
             Storage::disk('ftp_movilidad')->put('/ftpGarita/documentos_vehiculo/' . $nombrearchivo , File::get($nuevaruta));
+
+            // Eliminar archivo local
+            if (file_exists($nuevaruta)) {
+                unlink($nuevaruta);
+            }
 
             $documento_id = $doc['id'];
 
@@ -523,5 +630,86 @@ class GaritaController extends Controller
         // Al final puedes:
         return json_encode($jsonResultado);
     }
+
+    function deleteFilesEvidencias_ingreso_vehiculo_patio($ivp_id) {
+        $documentos = DB::select(
+            "SELECT ive_archivo_generado FROM garita.tbl_evidencias_vehiculo_patio WHERE ivp_id = ?", 
+            [$ivp_id]
+        );
+
+        foreach ($documentos as $doc) {
+            $path = '/ftpGarita/evidencias_vehiculo/' . $doc->ive_archivo_generado;
+            if (Storage::disk('ftp_movilidad')->exists($path)) {
+                Storage::disk('ftp_movilidad')->delete($path);
+            }
+        }
+    }
+
+    public function storeEvidenciasVehiculoPatio($imagenes)
+    {
+        $jsonResultado = [];
+
+        if($imagenes == null){
+            return $jsonResultado;
+        }
+
+        foreach ($imagenes as $img) {
+            $guid = GuidHelper::GUIDv4();
+            $archivo = $img;
+            $nombrearchivo = $guid . '.' . $archivo->getClientOriginalExtension();
+            $nuevaruta = public_path('/archivos_evidencias_vehiculo/' . $nombrearchivo);
+
+            // Guarda temporalmente en public
+            copy($archivo->getRealPath(), $nuevaruta);
+
+            // Luego se sube al FTP
+            Storage::disk('ftp_movilidad')->put('/ftpGarita/evidencias_vehiculo/' . $nombrearchivo, File::get($nuevaruta));
+
+             // Eliminar archivo local
+            if (file_exists($nuevaruta)) {
+                unlink($nuevaruta);
+            }
+
+            // Agrega al JSON de respuesta
+            $jsonResultado[] = [
+                'ive_archivo_original' => $archivo->getClientOriginalName(),
+                'ive_archivo_generado' => $nombrearchivo
+            ];
+        }
+
+        return json_encode($jsonResultado);
+    }
+
+    public function descargar_documento_vehiculo($archivo)
+    {
+        $archivo = trim($archivo, '"'); // decode + limpiar comillas dobles si existen
+        $ruta = '/ftpGarita/documentos_vehiculo/' . $archivo;
+        
+        if (!Storage::disk('ftp_movilidad')->exists($ruta)) {
+            return response()->json(['error' => 'Archivo no encontrado.'], 404);
+        }
+
+        $contenidoPDF = Storage::disk('ftp_movilidad')->get($ruta);
+        return response($contenidoPDF, 200)->header('Content-Type', 'application/pdf');
+    }
+
+    public function descargar_evidencias_vehiculo($archivo)
+    {
+        // Limpia comillas dobles si existen
+        $archivo = trim($archivo, '"');
+
+        $ruta = '/ftpGarita/evidencias_vehiculo/' . $archivo;
+
+        if (!Storage::disk('ftp_movilidad')->exists($ruta)) {
+            return response()->json(['error' => 'Archivo no encontrado'], 404);
+        }
+
+        $contenido = Storage::disk('ftp_movilidad')->get($ruta);
+        $mime = Storage::disk('ftp_movilidad')->mimeType($ruta) ?? 'application/octet-stream';
+
+        return response($contenido, 200)->header('Content-Type', $mime);
+    }
+
+
     
 }

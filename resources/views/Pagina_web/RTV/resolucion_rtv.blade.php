@@ -155,6 +155,105 @@
                                                     </a>
                                                 </td>
                                             </tr>
+                                            <tr>
+                                                <td width="80%">
+                                                    <span>5. ACTA COMISIÓN TÉCNICA NRO. 001  CRONOGRAMA</span>
+                                                </td>
+                                                <td class="flex jcontent_end">
+                                                    <a target="_blank"
+                                                        href="/download_resolucion/ACTA_1_RTV_CRONOGRAMA.pdf">
+                                                        <i class="fa fa-file-pdf-o pdf"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="80%">
+                                                    <span>6. ACTA COMISIÓN TÉCNICA NRO.002 MANIFESTACIÓN DE INTERES</span>
+                                                </td>
+                                                <td class="flex jcontent_end">
+                                                    <a target="_blank"
+                                                        href="/download_resolucion/ACTA_2_MANIFESTACION_DE_INTERES_RTV.pdf">
+                                                        <i class="fa fa-file-pdf-o pdf"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="80%">
+                                                    <span>7. ACTA COMISIÓN TÉCNICA NRO. 003 PREGUNTAS Y ACLARACIONES</span>
+                                                </td>
+                                                <td class="flex jcontent_end">
+                                                    <a target="_blank"
+                                                        href="/download_resolucion/ACTA_3_PREGUNTAS_O_ACLARACIONES_RTV.pdf">
+                                                        <i class="fa fa-file-pdf-o pdf"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="80%">
+                                                    <span>8. ACTA COMISIÓN TÉCNICA NRO. 004 RESPUESTAS Y ACLARACIONES</span>
+                                                </td>
+                                                <td class="flex jcontent_end">
+                                                    <a target="_blank"
+                                                        href="/download_resolucion/ACTA_4_RESPUESTAS_O_ACLARACIONES_RTV.pdf">
+                                                        <i class="fa fa-file-pdf-o pdf"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="80%">
+                                                    <span>9. ACTA COMISIÓN TÉCNICA NRO. 005 RECEPCIÓN Y APERTURA DE OFERTAS</span>
+                                                </td>
+                                                <td class="flex jcontent_end">
+                                                    <a target="_blank"
+                                                        href="/download_resolucion/ACTA_5 RTV_RECEPCION_Y_APERTURA.pdf">
+                                                        <i class="fa fa-file-pdf-o pdf"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="80%">
+                                                    <span>10. ACTA COMISIÓN TÉCNICA NRO. 006 SOLICITUD DE CONVALIDACIÓN</span>
+                                                </td>
+                                                <td class="flex jcontent_end">
+                                                    <a target="_blank"
+                                                        href="/download_resolucion/ACTA_6_CONVALIDACION_RTV.pdf">
+                                                        <i class="fa fa-file-pdf-o pdf"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="80%">
+                                                    <span>11. ACTA COMISIÓN TÉCNICA NRO.007 CALIFICACIÓN Y CONSTANCIA DE CONVALIDACIÓN</span>
+                                                </td>
+                                                <td class="flex jcontent_end">
+                                                    <a target="_blank"
+                                                        href="/download_resolucion/ACTA_7_CALIFICACION_RTV.pdf">
+                                                        <i class="fa fa-file-pdf-o pdf"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="80%">
+                                                    <span>12. ACTA COMISIÓN TÉCNICA NRO. 008 NEGOCIACIÓN RTV</span>
+                                                </td>
+                                                <td class="flex jcontent_end">
+                                                    <a target="_blank"
+                                                        href="/download_resolucion/ACTA_8_NEGOCIACION_RTV.pdf">
+                                                        <i class="fa fa-file-pdf-o pdf"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="80%">
+                                                    <span>13. ACTA COMISIÓN TÉCNICA NRO. 009 MODIFICACIÓN DE CRONOGRAMA</span>
+                                                </td>
+                                                <td class="flex jcontent_end">
+                                                    <a target="_blank"
+                                                        href="/download_resolucion/ACTA_9_MODIFICACION_CRONOGRAMA_RTV.pdf">
+                                                        <i class="fa fa-file-pdf-o pdf"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>

@@ -17,7 +17,7 @@
             <strong>Tipo:</strong>
             <select name="comment" id="cmb_comment_one" class="form-control">
                 <option value="RTV" selected>RTV</option>
-                <option value="EMPRESA PRIVADA">EMPRESA PRIVADA</option>
+                <!--<option value="EMPRESA PRIVADA">EMPRESA PRIVADA</option>-->
                 <option value="TAXIS">TAXIS</option>
                 <option value="CAIDO">CAIDO</option>
             </select>

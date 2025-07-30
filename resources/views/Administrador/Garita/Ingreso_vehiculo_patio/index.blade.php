@@ -2,6 +2,9 @@
 
 @section('css')
 <style>
+  :root{
+    --color_hover: #009ee2;
+  }
 .modal-full{
     max-width: 90%;
 }
@@ -158,6 +161,86 @@
         font-size: 18px;
         text-align: center;
     }
+
+    .btn-grow{
+      flex-grow: 1;
+      font-size: 24px;
+    }
+
+    .card_ingreso{
+      width: 70%;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    .card_ingreso:hover{
+      cursor: pointer;
+      border-color: var(--color_hover);
+    }
+
+    .card_ingreso--check{
+      border: 1px solid #ccc;
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      top: 5px;
+      right: 5px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .card_ingreso:hover .card_ingreso--check,
+    .card_ingreso.clickeado .card_ingreso--check{
+      border-color: var(--color_hover);
+    }
+
+    .card_ingreso--check--icon{
+      position: absolute;
+      right: 12px;
+      transition: right 1s;
+      color: var(--color_hover);
+    }
+
+    .card_ingreso--check--oculto{
+      right: -15px;
+    }
+
+    .card_ingreso.clickeado{
+      border-color: var(--color_hover);
+    }
+
+    .card-img-top{
+      max-width: 300px;
+    }
+
+    .modal-footer-iv{
+      display: flex
+    }
+
+    .modal-footer-iv > div{
+      flex-basis: 50%;
+    }
+
+    #img_tipo_ingreso_elegido{
+      width: 50px;
+      height: 50px;
+    }
+    .btn_back_elegir_ingreso{
+      padding-left: 1rem;
+    }
+    .btn_tipo_ingreso_elegido{
+      padding: 20px;
+      border-radius: 10px;
+    }
+    .btn_tipo_ingreso_elegido:hover{
+      cursor: pointer;
+      background-color: #0a7ffb;
+      color: #f0f0f0;
+    }
 /* Fin Container Documentos */
 </style>
 @endsection
@@ -217,6 +300,9 @@
 <x-generico.modal_iframe_view idModal="modal_view_pdf" idVisor="iframe_visor_pdf" titulo="Visor Certificado Médico">
 </x-generico.modal_iframe_view>
 <!-- FIN MODAL VISOR PDF  -->
+
+<x-administrador.garita.ingreso_vehiculo_patio.modal_elegir_ingreso_vehiculo idModalTipoIngreso="modal_tipo_ingreso" :tipoIngreso="$tipo_ingreso" >
+</x-administrador.garita.ingreso_vehiculo_patio.modal_elegir_ingreso_vehiculo>
 
 <!-- Modal agregar configuracion unidades almacenamiento -->
 <x-administrador.garita.ingreso_vehiculo_patio.modal_modificar_agregar_ingreso_vehiculo_patio idModalIngresoVehiculoPatio="modal_agregar_ingreso_vehiculo_patio">

@@ -44,11 +44,68 @@ let accionFormulario = "ADD";
 let idIngresoVehiculoPatioToDelete = 0;
 let cont_checkbox = 1;
 let cont_input_documento = 1;
-let id_inventario_vehiculo = 17;
-let tipo_ingreso_vehicular = 3;
+let id_inventario_vehiculo = 0;
+const tipo_ingreso_vehicular = document.getElementById("tiv_id_modal_tipo_ingreso");
+const descripcion_ingreso_vehicular = document.getElementById("ivp_descripcion_modal_tipo_ingreso");
 const iframePDF = document.getElementById('iframe_visor_pdf');
 const containerViewPDF = document.getElementById('modal_view_pdf');
+const btnSiguienteIngresoVehicular = document.getElementById('btn_siguiente-modal_tipo_ingreso');
+const sectionDatosGenerales = document.querySelector("a[href='#tab_datos_generales']");
+const inputImagenes = document.getElementById('id_evidencia_raspones_golpes');
 //---------------------------------------------------------------------
+
+// Controles de agentes que ingresan el vehiculo
+const txt_cedula_agente_retiene = document.getElementById("txt_cedula_agente_retiene");
+const txt_nombre_agente_retiene = document.getElementById("txt_nombre_agente_retiene");
+const txt_email_agente_retiene = document.getElementById("txt_email_agente_retiene");
+const txt_cedula_agente_ingresa = document.getElementById("txt_cedula_agente_ingresa");
+const txt_nombre_agente_ingresa = document.getElementById("txt_nombre_agente_ingresa");
+const txt_cedula_responsable = document.getElementById("txt_cedula_responsable");
+const txt_nombre_responsable = document.getElementById("txt_nombre_responsable");
+const txt_email_responsable = document.getElementById("txt_email_responsable");
+//--------------------------------------------------------------------
+
+//botoncito volver a  descripcion
+const imgTipoIngreso = document.getElementById('img_tipo_ingreso_elegido');
+const btnTipoIngreso = document.getElementById('btn_tipo_ingreso_elegido');
+const labelTipoIngreso = document.getElementById('span_tipo_ingreso_elegido');
+//------------------------------------------
+
+function limpiarCamposIngresoVehiculo() {
+    id_ingreso_vehiculo_patio.value = "";
+    txt_articulo.value = "";
+    txt_numeral.value = "";
+    txt_literal.value = "";
+    txt_resolucion.value = "";
+    txt_autoridad.value = "";
+    txt_oficio.value = "";
+    txt_cedula_conductor.value = "";
+    txt_nombre_conductor.value = "";
+    txt_tipo_licencia_conductor.value = "-1";
+    txt_placa_vehiculo.value = "";
+    txt_tipo_placa_vehiculo.value = "-1";
+    txt_marca_vehiculo.value = "";
+    txt_modelo_vehiculo.value = "";
+    txt_color1_vehiculo.value = "";
+    txt_ramv_vehiculo.value = "";
+    txt_chasis_vehiculo.value = "";
+    txt_motor_vehiculo.value = "";
+    txt_servicio_vehiculo.value = "-1";
+    select_medio_ingreso.value = "-1";
+    txt_medio_ingreso_empresa.value = "";
+    txt_medio_ingreso_datos_translado.value = "";
+
+    txt_cedula_agente_retiene.value = "";
+    txt_nombre_agente_retiene.value = "";
+    txt_email_agente_retiene.value = "";
+    txt_cedula_agente_ingresa.value = "";
+    txt_nombre_agente_ingresa.value = "";
+    txt_cedula_responsable.value = "";
+    txt_nombre_responsable.value = "";
+    txt_email_responsable.value = "";
+
+    select_medio_ingreso.dispatchEvent(new Event("change"));
+}
 
 $(document).ready(function () {
 
@@ -108,7 +165,16 @@ $(document).ready(function () {
     setInputValidations('txt_medio_ingreso_empresa_modal_agregar_ingreso_vehiculo_patio', ['notEmpty'], []);
     setInputValidations('txt_medio_ingreso_datos_translado_modal_agregar_ingreso_vehiculo_patio', ['notEmpty'], []);
 
-    let allInputsModal = document.querySelectorAll('#form_modal_agregar_ingreso_vehiculo_patio input[id$="_modal_agregar_ingreso_vehiculo_patio"]');
+    setInputValidations('txt_cedula_agente_retiene', ['notEmpty'], []);
+    setInputValidations('txt_nombre_agente_retiene', ['notEmpty'], []);
+    setInputValidations('txt_email_agente_retiene', ['notEmpty'], []);
+    setInputValidations('txt_cedula_agente_ingresa', ['notEmpty'], []);
+    setInputValidations('txt_nombre_agente_ingresa', ['notEmpty'], []);
+    setInputValidations('txt_cedula_responsable', ['notEmpty'], []);
+    setInputValidations('txt_nombre_responsable', ['notEmpty'], []);
+    setInputValidations('txt_email_responsable', ['notEmpty'], []);
+
+    let allInputsModal = document.querySelectorAll('#form_modal_agregar_ingreso_vehiculo_patio input[id$="_modal_agregar_ingreso_vehiculo_patio"], #id_evidencia_raspones_golpes');
 
     allInputsModal.forEach(e => {
         if (e.which === 13) {
@@ -116,22 +182,18 @@ $(document).ready(function () {
         }
     });
 
-    getIventarioVehiculo(id_inventario_vehiculo);
-
-    getDocumentosVehiculo(tipo_ingreso_vehicular);
-
     containerViewPDF.style.zIndex = 99999;
 
 });
 
-function getDocumentosVehiculo(tipo_ingreso_vehicular) {
+function getDocumentosVehiculo(tipo_ingreso_vehicular, functionAddtional = undefined) {
     $.ajax({
         url: `/garita/ingreso_vehiculo_patio/get_documentos_vehiculo/${tipo_ingreso_vehicular}`,
         type: "GET",
         dataType: "json",
         success: function (response) {
             containerDocumentosVehiculo.innerHTML = "";
-            console.log(response);
+
             response.forEach(i => {
                 containerDocumentosVehiculo.innerHTML += `
                 <input type="file" data-sec="${cont_input_documento}" id="file_pdf_documento-${cont_input_documento}" data-name="${i.d_nombre}" data-es_requerido="${i.d_es_requerido}" data-id="${i.d_id}" name="file_pdf" accept=".pdf" style="display: none;">
@@ -161,6 +223,10 @@ function getDocumentosVehiculo(tipo_ingreso_vehicular) {
                 setFunctionSubirDocumentoVehiculo(e)
             });
 
+            if (functionAddtional != undefined) {
+                functionAddtional();
+            }
+
         }
     });
 }
@@ -171,8 +237,6 @@ function setFunctionSubirDocumentoVehiculo(element) {
     const divNotLoaded = containerDocumentosVehiculo.querySelector(`div[data-div_notloaded="${element.dataset.sec}"]`);
     const btnViewPDF = divLoaded.querySelector('a[data-btn_view]');
     const btnDeletePDF = divLoaded.querySelector('a[data-btn_delete]');
-
-    console.log(containerDocumentosVehiculo);
 
     inputDocument.addEventListener('change', (event) => {
         let file = event.target.files[0];
@@ -216,41 +280,45 @@ function getIventarioVehiculo(TipoInventario) {
         type: "GET",
         dataType: "json",
         success: function (response) {
-            containerInventarioVehiculo.innerHTML = '';
-            response.forEach(i => {
-                if (i.ivd_tipo == 1) {
-                    containerInventarioVehiculo.innerHTML += `
-                <p>${i.ivd_title}</p>
+            renderInventarioVehiculo(response)
+        }
+    });
+}
+
+function renderInventarioVehiculo(items) {
+    containerInventarioVehiculo.innerHTML = '';
+    items.forEach(i => {
+        if (i.ivd_tipo == 1) {
+            containerInventarioVehiculo.innerHTML += `
+            <p>${i.ivd_title}</p>
+            `;
+            containerInventarioVehiculo.innerHTML += `
+                <div class="checkbox-wrapper-1">
+                    <input id="example-${cont_checkbox}" data-name="${i.ivd_title}" class="substituted" data-id="${i.ivd_id}" type="checkbox" value="1" aria-hidden="true" ${i.ivd_valor == "true" ? 'checked' : ''} />
+                    <label for="example-${cont_checkbox}"></label>
+                </div>
                 `;
-                    containerInventarioVehiculo.innerHTML += `
-                    <div class="checkbox-wrapper-1">
-                        <input id="example-${cont_checkbox}" data-name="${i.ivd_title}" class="substituted" data-id="${i.ivd_id}" type="checkbox" value="1" aria-hidden="true" />
-                        <label for="example-${cont_checkbox}"></label>
-                    </div>
-                   `;
-                    cont_checkbox++;
-                }
-                if (i.ivd_tipo == 2) {
-                    containerInventarioVehiculo.innerHTML += `
-                <p>${i.ivd_title}</p>
+            cont_checkbox++;
+        }
+        if (i.ivd_tipo == 2) {
+            containerInventarioVehiculo.innerHTML += `
+            <p>${i.ivd_title}</p>
+            `;
+            containerInventarioVehiculo.innerHTML += `
+                <i>
+                    <input data-name="${i.ivd_title}" data-id="${i.ivd_id}" type="number" value="${i.ivd_valor != undefined ? i.ivd_valor : 1}" />
+                </i>
                 `;
-                    containerInventarioVehiculo.innerHTML += `
-                    <i>
-                       <input data-name="${i.ivd_title}" data-id="${i.ivd_id}" type="number" value="1" />
-                    </i>
-                   `;
-                }
-                if (i.ivd_tipo == 3) {
-                    containerInventarioVehiculo.innerHTML += `
-                <p class="margin-10">${i.ivd_title}</p>
+        }
+        if (i.ivd_tipo == 3) {
+            containerInventarioVehiculo.innerHTML += `
+            <p class="margin-10">${i.ivd_title}</p>
+            `;
+            containerInventarioVehiculo.innerHTML += `
+                <p class="item_full_width">
+                    <input class="form-control" style="text-transform: uppercase;" data-name="${i.ivd_title}" data-id="${i.ivd_id}" type="text" value="${i.ivd_valor != undefined ? i.ivd_valor : ''}" />
+                </p>
                 `;
-                    containerInventarioVehiculo.innerHTML += `
-                    <p class="item_full_width">
-                       <input class="form-control" data-name="${i.ivd_title}" data-id="${i.ivd_id}" type="text" value="" />
-                    </p>
-                   `;
-                }
-            });
         }
     });
 }
@@ -287,9 +355,18 @@ btnAgregarIngresoVehiculoPatio.addEventListener('click', () => {
     txtDescripcion.value = "";
     txtDetalleTitulo.value = "";
     SelectDetalleTipo.value = 1;
+    .card_ingreso
     */
     accionFormulario = "ADD";
-    $("#modal_agregar_ingreso_vehiculo_patio").modal("show");
+    clearClickeado();
+    descripcion_ingreso_vehicular.value = "";
+    containerInventarioVehiculo.innerHTML = "";
+    containerDocumentosVehiculo.innerHTML = "";
+
+    limpiarCamposIngresoVehiculo();
+    sectionDatosGenerales.dispatchEvent(new Event("click"));
+    inputImagenes.clearImagenes();
+    $("#modal_tipo_ingreso").modal("show");
 });
 
 function getIngresoVehiculoPatio() {
@@ -301,9 +378,18 @@ function getIngresoVehiculoPatio() {
         dataType: "json",
         success: function (response) {
             let html = configureTableHtml("table_ingreso_patio_vehiculo",
-                ['#', 'PLACA', 'DESCRIPCION', 'OPCIONES'
+                ['#', 'PLACA', 'DESCRIPCION', 'ESTADO', 'OPCIONES'
                 ],
                 ['ivp_id', 'ivp_vehiculo_placa', 'ivp_descripcion',
+                    {
+                        align: 'center',
+                        class: 'color-td',
+                        functionValue: function (item) {
+                            return item.ivp_estado
+                                ? '<span class="badge bg-success me-1">Activo</span>'
+                                : '<span class="badge bg-danger me-1">Inactivo</span>';
+                        }
+                    },
                     {
                         align: 'center',
                         class: 'color-td',
@@ -356,6 +442,15 @@ btnGuardarIngresoVehiculoPatio.addEventListener('click', () => {
 
     errores += select_medio_ingreso.validateInput();
 
+    errores += txt_cedula_agente_retiene.validateInput();
+    errores += txt_nombre_agente_retiene.validateInput();
+    errores += txt_email_agente_retiene.validateInput();
+    errores += txt_cedula_agente_ingresa.validateInput();
+    errores += txt_nombre_agente_ingresa.validateInput();
+    errores += txt_cedula_responsable.validateInput();
+    errores += txt_nombre_responsable.validateInput();
+    errores += txt_email_responsable.validateInput();
+
     if (select_medio_ingreso.value > 0) {
         errores += txt_medio_ingreso_empresa.validateInput();
         errores += txt_medio_ingreso_datos_translado.validateInput();
@@ -405,7 +500,7 @@ btnGuardarIngresoVehiculoPatio.addEventListener('click', () => {
                 iv_id: id_inventario_vehiculo,
                 iv_title: i.dataset.name,
                 iv_tipo: 3,
-                iv_valor: i.value,
+                iv_valor: i.value.toUpperCase(),
                 iv_orden: orden_conteo
             });
         }
@@ -427,7 +522,13 @@ btnGuardarIngresoVehiculoPatio.addEventListener('click', () => {
         $(`#${TextSaveIngresoVehiculoPatio.id}`).html("Guardando...");
         const token = $("#csrf_token_modal_agregar_ingreso_vehiculo_patio").val();
         const datos = new FormData($("#form_modal_agregar_ingreso_vehiculo_patio")[0]);
+        datos.append('tiv_id', tipo_ingreso_vehicular.value);
+        datos.append('ivp_descripcion', descripcion_ingreso_vehicular.value.toUpperCase());
         datos.append('detalle_inventario_vehiculo', JSON.stringify(detalle_inventario_vehiculo));
+
+        inputImagenes.getImagenes().forEach(file => {
+            datos.append('imagenes[]', file);
+        });
 
         listInputDocumentos.forEach((i, k) => {
             const file = i.files[0];
@@ -525,17 +626,159 @@ function show_mod_ingreso_vehiculo_patio(ivp_id) {
         type: "GET",
         dataType: "json",
         success: function (response) {
+            accionFormulario = "ADD";
             id_ingreso_vehiculo_patio.value = ivp_id;
-            /*
-            txtTitulo.value = iv_title;
-            txtDescripcion.value = iv_descripcion;*/
+
+            descripcion_ingreso_vehicular.value = response.ivp_descripcion;
+
+            clearClickeado();
+            const cardIngresoElegido = document.querySelector(`.card_ingreso[data-id="${response.tiv_id}"]`);
+
+            if (cardIngresoElegido) {
+                cardIngresoElegido.dispatchEvent(new Event("click"));
+            }
+
+            renderBtnIngresoElegido();
+
+            id_inventario_vehiculo = 1;
+            if (response.tiv_id == 1) id_inventario_vehiculo = 2;
+
             accionFormulario = "MOD";
+
+            txt_articulo.value = response.ivp_articulo;
+            txt_numeral.value = response.ivp_numeral;
+            txt_literal.value = response.ivp_literal;
+            txt_resolucion.value = response.ivp_resolucion;
+            txt_autoridad.value = response.ivp_autoridad;
+            txt_oficio.value = response.ivp_oficio;
+            txt_cedula_conductor.value = response.ivp_conductor_identificacion;
+            txt_nombre_conductor.value = response.ivp_conductor_nombres;
+            txt_tipo_licencia_conductor.value = response.ivp_conductor_tipo_licencia;
+            txt_placa_vehiculo.value = response.ivp_vehiculo_placa;
+            txt_tipo_placa_vehiculo.value = response.ivp_vehiculo_tipo;
+            txt_marca_vehiculo.value = response.ivp_vehiculo_marca;
+            txt_modelo_vehiculo.value = response.ivp_vehiculo_modelo;
+            txt_color1_vehiculo.value = response.ivp_vehiculo_color1;
+            txt_ramv_vehiculo.value = response.ivp_vehiculo_ramv;
+            txt_chasis_vehiculo.value = response.ivp_vehiculo_chasis;
+            txt_motor_vehiculo.value = response.ivp_vehiculo_motor;
+            txt_servicio_vehiculo.value = response.ivp_vehiculo_servicio;
+            select_medio_ingreso.value = response.ivp_medio_ingreso;
+            select_medio_ingreso.dispatchEvent(new Event("change"));
+            txt_medio_ingreso_empresa.value = response.ivp_medio_ingreso_empresa;
+            txt_medio_ingreso_datos_translado.value = response.ivp_medio_ingreso_datos_translado;
+
+            txt_cedula_agente_retiene.value = response.ivp_agente_retiene_cedula;
+            txt_nombre_agente_retiene.value = response.ivp_agente_retiene_nombre;
+            txt_email_agente_retiene.value = response.ivp_agente_retiene_email;
+            txt_cedula_agente_ingresa.value = response.ivp_agente_ingresa_cedula;
+            txt_nombre_agente_ingresa.value = response.ivp_agente_ingresa_nombre;
+            txt_cedula_responsable.value = response.ivp_responsable_cedula;
+            txt_nombre_responsable.value = response.ivp_responsable_nombre;
+            txt_email_responsable.value = response.ivp_responsable_email;
+
+            //Render de la lista de inventario de vehiculo
+            let items_inventario = JSON.parse(response.list_inventario);
+
+            items_inventario = items_inventario.map(i => {
+                return {
+                    ivd_id: i.iv_id,
+                    ivd_tipo: i.iv_tipo,
+                    ivd_title: i.iv_title,
+                    ivd_valor: i.iv_valor
+                };
+            });
+
+            renderInventarioVehiculo(items_inventario)
+            //-------------------------------------------
+
+            //Render de documentos de vehiculo
+            let documentos_vehiculo = JSON.parse(response.list_documentos);
+            getDocumentosVehiculo(response.tiv_id, () => {
+                documentos_vehiculo.forEach(d => {
+                    let inputFile = containerDocumentosVehiculo.querySelector(`input[data-id="${d.d_id}"]`);
+
+                    fetch(`/garita/ingreso_vehiculo_patio/getDocumento/${d.ivd_archivo_generado}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                console.warn(`No se encontró el archivo: ${d.ivd_archivo_generado}`);
+                                return null;
+                            }
+                            return response.blob();
+                        })
+                        .then(blob => {
+                            if (!blob) return;
+
+                            let file = new File([blob], d.ivd_archivo_original, { type: "application/pdf" });
+
+                            let dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(file);
+
+                            inputFile.files = dataTransfer.files;
+                            inputFile.dispatchEvent(new Event("change"));
+                        })
+                        .catch(error => {
+                            console.error(`Error al obtener el archivo ${d.ivd_archivo_generado}:`, error);
+                        });
+                });
+            });
+            //--------------------------------------------
+
+            //Render Imagenes de evidencia, Golpes, Raspones
+            inputImagenes.clearImagenes();
+            let list_images = JSON.parse(response.list_evidencias);
+            // Crear un objeto DataTransfer fuera del loop para acumular todos los archivos
+            let dataTransfer_evidencias = new DataTransfer();
+
+            let archivosProcesados = 0;
+
+            list_images.forEach(i => {
+                fetch(`/garita/ingreso_vehiculo_patio/getImagenesEvidencia/${i.ive_archivo_generado}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            console.warn(`Archivo no encontrado: ${i.ive_archivo_generado}`);
+                            return null;
+                        }
+
+                        const contentType = response.headers.get('Content-Type') || 'image/jpeg';
+                        return response.blob().then(blob => ({ blob, contentType }));
+                    })
+                    .then(data => {
+                        archivosProcesados++;
+
+                        if (!data) {
+                            // Si el archivo no existe, simplemente salta
+                            verificarCargaCompleta(dataTransfer_evidencias, list_images, archivosProcesados);
+                            return;
+                        }
+
+                        const { blob, contentType } = data;
+
+                        let file = new File([blob], i.ive_archivo_original, { type: contentType });
+                        dataTransfer_evidencias.items.add(file);
+
+                        verificarCargaCompleta(dataTransfer_evidencias, list_images, archivosProcesados);
+                    })
+                    .catch(error => {
+                        archivosProcesados++;
+                        console.error(`Error cargando evidencia ${i.ive_archivo_generado}:`, error);
+                        verificarCargaCompleta(dataTransfer_evidencias, list_images, archivosProcesados);
+                    });
+            });
+            //--------------------------------------------
 
             $("#modal_agregar_ingreso_vehiculo_patio").modal("show");
         }
     });
 
 
+}
+
+function verificarCargaCompleta(dataTransfer_evidencias, list_images, archivosProcesados) {
+    if (archivosProcesados === list_images.length) {
+        inputImagenes.files = dataTransfer_evidencias.files;
+        inputImagenes.dispatchEvent(new Event("change"));
+    }
 }
 
 function show_delete_ingreso_vehiculo_patio(id) {
@@ -587,4 +830,76 @@ btnDeleteIngresoVehiculoPatio.addEventListener('click', function () {
             alert('Ajax request aborted.');
         }
     });
+});
+
+$(".card_ingreso").click(function () {
+
+    if (accionFormulario == "MOD") {
+        return;
+    }
+
+    const $this = $(this);
+
+    // Si ya tenía la clase, desactiva todo
+    if ($this.hasClass("clickeado")) {
+        $this.removeClass("clickeado");
+        $this.find("i").addClass("card_ingreso--check--oculto");
+        tipo_ingreso_vehicular.value = "0";
+        btnSiguienteIngresoVehicular.disabled = true;
+    } else {
+        // Quita la clase y oculta el ícono de todas las tarjetas
+        $(".card_ingreso").removeClass("clickeado");
+        $(".card_ingreso i").addClass("card_ingreso--check--oculto");
+
+        // Activa esta tarjeta y muestra su ícono
+        $this.addClass("clickeado");
+        $this.find("i").removeClass("card_ingreso--check--oculto");
+        tipo_ingreso_vehicular.value = $this.data("id");
+        btnSiguienteIngresoVehicular.disabled = false;
+    }
+});
+
+function clearClickeado() {
+    const cardIngresoClickeado = document.querySelector('.card_ingreso.clickeado');
+
+    if (cardIngresoClickeado) {
+        cardIngresoClickeado.dispatchEvent(new Event("click"));
+    }
+}
+
+btnSiguienteIngresoVehicular.addEventListener('click', e => {
+    if (descripcion_ingreso_vehicular.value.trim() == "") {
+        notif({
+            msg: "<b>Error:</b> Falta agregar Descripcion!",
+            type: "error",
+            zindex: 99999
+        });
+        return;
+    }
+
+    id_inventario_vehiculo = 1;
+    if (tipo_ingreso_vehicular.value == 1) id_inventario_vehiculo = 2;
+
+    if (accionFormulario == "ADD") {
+        renderBtnIngresoElegido();
+        getIventarioVehiculo(id_inventario_vehiculo);
+        getDocumentosVehiculo(tipo_ingreso_vehicular.value);
+    }
+
+    $("#modal_tipo_ingreso").modal("hide");
+    $("#modal_agregar_ingreso_vehiculo_patio").modal("show");
+
+});
+
+function renderBtnIngresoElegido() {
+    const cardIngresoClickeado = document.querySelector('.card_ingreso.clickeado');
+    const imgchoose = cardIngresoClickeado.querySelector('img.card-img-top');
+    imgTipoIngreso.src = imgchoose.src;
+    const label = cardIngresoClickeado.querySelector('.card-title');
+    labelTipoIngreso.innerHTML = label.innerHTML;
+}
+
+btnTipoIngreso.addEventListener('click', () => {
+    $("#modal_agregar_ingreso_vehiculo_patio").modal("hide");
+    $("#modal_tipo_ingreso").modal("show");
 });

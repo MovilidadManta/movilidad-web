@@ -5,7 +5,7 @@
                 <label for="txt_placas">Tipo:</label>
                 <select name="comment" id="cmb_comment_many" class="form-control">
                     <option value="RTV">RTV</option>
-                    <option value="EMPRESA PRIVADA" selected>EMPRESA PRIVADA</option>
+                    <!--<option value="EMPRESA PRIVADA" selected>EMPRESA PRIVADA</option>-->
                     <option value="TAXIS">TAXIS</option>
                     <option value="CAIDO">CAIDO</option>
                 </select>

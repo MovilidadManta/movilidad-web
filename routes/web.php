@@ -785,10 +785,12 @@ Route::prefix('garita')->middleware(['auth.custom'])->group(function () {
         Route::GET('/get/{id}', 'App\Http\Controllers\GaritaController@get_one_IngresoVehiculoPatio');
         Route::GET('/get_inventario_vehiculo/{iv_id}', 'App\Http\Controllers\GaritaController@get_DetalleInventarioVehiculo');
         Route::GET('/get_documentos_vehiculo/{tiv_id}', 'App\Http\Controllers\GaritaController@get_detalle_documentos_vehiculo');
+        Route::GET('/getDocumento/{archivo}', 'App\Http\Controllers\GaritaController@descargar_documento_vehiculo');
+        Route::GET('/getImagenesEvidencia/{archivo}', 'App\Http\Controllers\GaritaController@descargar_evidencias_vehiculo');
         Route::GET('/list', 'App\Http\Controllers\GaritaController@get_IngresoVehiculoPatio');
         Route::POST('/store', 'App\Http\Controllers\GaritaController@storeIngresoVehiculoPatio');
-        Route::POST('/update', 'App\Http\Controllers\GaritaController@updateConfInventarioVehiculo');
-        Route::POST('/delete/{id}', 'App\Http\Controllers\GaritaController@destroyConfInventarioVehiculo');
+        Route::POST('/update', 'App\Http\Controllers\GaritaController@updateIngresoVehiculoPatio');
+        Route::POST('/delete/{id}', 'App\Http\Controllers\GaritaController@deleteIngresoVehiculoPatio');
     });
 });
 
